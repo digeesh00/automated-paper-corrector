@@ -30,7 +30,7 @@ def display_results(results):
         st.metric("AI Total Score", f"{evaluation['total_score']}/{evaluation['max_score']}")
     with kpi2: 
         # REQUIREMENT: Display Accuracy of evaluation process
-        st.metric("Evaluation Accuracy", f"{round(avg_accuracy, 2)}%")
+        st.metric("Evaluation Accuracy", f"{round(avg_accuracy * 100, 2)}%")
     with kpi3: 
         st.metric("Grade", evaluation.get('grade', 'N/A'))
     with kpi4:

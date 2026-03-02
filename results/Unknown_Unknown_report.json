@@ -1,43 +1,20 @@
 {
-  "metadata": {
-    "evaluation_date": "2026-02-27T14:18:52.551786",
-    "teacher_file": "ML-AnswerKey-1.pdf",
-    "student_file": "ML-Student-Answer-1-3_cropped.pdf",
-    "student_info": {
-      "name": "Unknown",
-      "roll_no": "Unknown"
-    }
-  },
   "evaluation": {
-    "total_score": 0.0,
-    "max_score": 100.0,
-    "percentage": 0.0,
-    "average_similarity": 0.0,
-    "status": "fail",
-    "grade": "F",
+    "student_name": "Unknown",
+    "roll_no": "Unknown",
+    "total_score": 8.0,
+    "max_score": 10.0,
+    "grade": "A+",
+    "status": "Pass",
     "page_scores": [
       {
         "page_no": 1,
-        "similarity_score": 0.0,
-        "marks_awarded": 0.0,
-        "max_marks": 0.0,
-        "analysis": "Empty content provided for evaluation."
-      },
-      {
-        "page_no": 2,
-        "similarity_score": 0.0,
-        "marks_awarded": 0.0,
-        "max_marks": 0.0,
-        "analysis": "Empty content provided for evaluation."
-      },
-      {
-        "page_no": 3,
-        "similarity_score": 0.0,
-        "marks_awarded": 0.0,
-        "max_marks": 0.0,
-        "analysis": "Empty content provided for evaluation."
+        "marks_awarded": 8.0,
+        "max_marks": 10.0,
+        "analysis": "SCORE_EARNED: 8.0\nSCORE_TOTAL: 10\nANALYSIS:\nQ1: 2/2. The student correctly identifies that keywords \"cannot be used as Identifiers\" because they are \"predefined words\" and \"reserved words in C\". This matches the logical meaning of the master key.\nQ2: 0/2. The student's answer focuses on the *benefits* (improve quality, reliability, readability) and a vague \"manage the compilation process\". It misses the core logical meaning of the master key, which is that preprocessor directives \"instructs the compiler to process certain instructions before actual compilation starts\".\nQ3: 2/2. The student correctly identifies `strcmp` as a \"string compare function\" and states that the \"value will be 0 or negative\". This accurately reflects the outcome for `strcmp(\"Hello\", \"World\")` (which is negative) and the general behavior of the function.\nQ4: 2/2. The student provides a syntactically correct example for the \"initialization of a 2D array with a set of values\" (`int arr [2][2] = { {2.64, 5.8}, {73} }`). While the values might lead to type conversion warnings, the structure and concept of initialization are correct.\nQ5: 2/2. The student correctly defines recursion as \"the function which call by itself\". This captures the essential logical meaning of the master key.",
+        "extraction_confidence": 0.95
       }
     ],
-    "total_pages_evaluated": 3
+    "timestamp": "2026-03-02 11:34:01"
   }
 }

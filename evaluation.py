@@ -109,31 +109,66 @@ class Evaluator:
             "total_pages_evaluated": 0
         }
     
-    def generate_evaluation_report(
-        self,
-        comparison_results: List[Dict[str, Any]],
-        student_info: Optional[Dict[str, str]] = None,
-        teacher_file: str = "",
-        student_file: str = ""
-    ) -> Dict[str, Any]:
-        """Generate a comprehensive evaluation report including metadata."""
-        evaluation = self.evaluate_comparisons(comparison_results)
-        
-        report = {
-            "metadata": {
-                "evaluation_date": datetime.now().isoformat(),
-                "teacher_file": teacher_file,
-                "student_file": student_file,
-                "student_info": student_info or {}
-            },
-            "evaluation": evaluation
-        }
-        
-        return report
+    # Inside evaluation.py
 
     # Inside evaluation.py
 
-   # Inside evaluation.py
+    def generate_evaluation_report(
+        self, 
+        comparison_results: List[Dict[str, Any]], 
+        teacher_file: str = "Unknown", 
+        student_file: str = "Unknown",
+        student_info: Optional[Dict] = None
+    ) -> Dict[str, Any]:
+        """Accumulates question-wise scores into a final report by summing up AI analysis."""
+        page_scores = []
+        total_earned = 0.0
+        calculated_max_score = 0.0  # <--- Start at 0 for dynamic summing
+        
+        for res in comparison_results:
+            analysis = res.get('analysis', '')
+            marks = self.parse_marks_from_analysis(analysis)
+            
+            page_scores.append({
+                "page_no": res.get('student_page_no', 0),
+                "marks_awarded": marks['earned'],
+                "max_marks": marks['total'], # This comes from 'SCORE_TOTAL' in analysis
+                "analysis": analysis,
+                "extraction_confidence": res.get('extraction_confidence', 0.0)
+            })
+            
+            total_earned += marks['earned']
+            # DYNAMIC FIX: Sum up the total marks from each question/page analysis
+            calculated_max_score += marks['total']
+
+        # Use the calculated sum instead of the static self.total_marks
+        actual_total = calculated_max_score if calculated_max_score > 0 else self.total_marks
+        
+        # Calculate percentage based on the sum of questions
+        percentage = (total_earned / actual_total) * 100 if actual_total > 0 else 0
+        
+        # Grade calculation
+        if percentage >= 90: grade = "O (Outstanding)"
+        elif percentage >= 80: grade = "A+"
+        elif percentage >= 70: grade = "A"
+        elif percentage >= 60: grade = "B"
+        elif percentage >= 50: grade = "C"
+        else: grade = "RA (Re-Appearance)"
+
+        status = "Pass" if total_earned >= (actual_total * 0.4) else "Fail"
+        
+        return {
+            "evaluation": {
+                "student_name": student_info.get('name', 'Unknown') if student_info else "Unknown",
+                "roll_no": student_info.get('roll_no', 'Unknown') if student_info else "Unknown",
+                "total_score": total_earned,
+                "max_score": actual_total, # This will now show 10.0 if the questions sum to 10
+                "grade": grade,
+                "status": status,
+                "page_scores": page_scores,
+                "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            }
+        }
 
     def get_summary(self, evaluation: Dict[str, Any]) -> str:
         """

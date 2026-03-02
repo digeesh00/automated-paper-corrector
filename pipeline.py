@@ -49,53 +49,55 @@ class CorrectionPipeline:
             raise KeyError("Critical Error: 'student_script' missing from extraction results.")
 
         student_script = extracted_data['student_script']
-        extracted_data['student_name'] = "Unknown"
-        extracted_data['roll_no'] = "Unknown"
+        
+        # Pull metadata directly from the extraction module's findings
+        extracted_data['student_name'] = student_script.get('student_name', 'Unknown')
+        extracted_data['roll_no'] = student_script.get('roll_no', 'Unknown')
 
-        # Parsing student metadata from headers to identify the student
+        # FIX: Ensure content is cleaned and confidence is preserved for each page
         for page in student_script['pages']:
             raw = page.get('raw_text', '')
-            if "METADATA_NAME:" in raw and "CONTENT:" in raw:
-                try:
-                    name = raw.split("METADATA_NAME:")[1].split("METADATA_ROLL:")[0].strip()
-                    roll = raw.split("METADATA_ROLL:")[1].split("CONTENT:")[0].strip()
-                    # Clean the page content by removing header tags
-                    page['content'] = raw.split("CONTENT:")[1].strip()
-                    
-                    extracted_data['student_name'] = name if name.lower() != "unknown" else "Unknown"
-                    extracted_data['roll_no'] = roll if roll.lower() != "unknown" else "Unknown"
-                except (IndexError, ValueError):
-                    pass
+            if "CONTENT:" in raw:
+                # Update content to exclude the metadata headers for cleaner comparison
+                page['content'] = raw.split("CONTENT:")[1].strip()
+            
+            # Ensure extraction_confidence exists (defaults to 0.85 if missing)
+            if 'extraction_confidence' not in page:
+                page['extraction_confidence'] = 0.85
+                
         return extracted_data
 
     async def run_async(self, t_path: str, s_path: str, r_path: Optional[str] = None, save_results: bool = True, subject: str = "General") -> Dict[str, Any]:
-        """Main execution flow with Global Master Key Mapping and Leniency Logic."""
+        """Main execution flow with Dynamic Marks Detection and Global Mapping."""
         pipeline_start = time.time()
         
         # Phase 1: Extraction
         extracted_data = await self.extract_phase(t_path, s_path, r_path)
         
-        # --- DUAL-MODE LOGIC & THRESHOLD CALIBRATION ---
-       # Inside pipeline.py -> run_async method
+        # --- DYNAMIC TOTAL MARKS DETECTION ---
+        # We check the teacher's first page for "METADATA_MAX_MARKS" provided by extraction.py
+        teacher_raw = extracted_data['teacher_key']['pages'][0].get('raw_text', '')
+        max_marks_match = re.search(r"METADATA_MAX_MARKS:\s*([\d.]+)", teacher_raw)
+        
+        if max_marks_match:
+            detected_max = float(max_marks_match.group(1))
+            self.total_marks = detected_max
+            # Re-initialize or update the evaluator with the correct total
+            self.evaluator.total_marks = detected_max
+            print(f"🎯 Dynamic Mapping: Set Total Marks to {detected_max}")
 
-    # --- DUAL-MODE LOGIC ---
+        # --- DUAL-MODE LOGIC ---
         if subject == "Language":
             eval_mode = "language"
-            threshold = 0.85 # Strict for Grammar/Creativity
+            threshold = 0.85 
         else:
             eval_mode = "technical"
-            threshold = 0.50 # Lenient for Logic/Keywords
+            threshold = 0.50 
 
-    # ... remaining pipeline logic ...
-
-        # --- GLOBAL CONTEXT MAPPING (The Fix) ---
-        # Consolidate all teacher pages into one Master Key. 
-        # Resolves cases where Teacher has 8 Qs on Page 1 but Student has 2 Qs per page.
+        # --- GLOBAL CONTEXT MAPPING ---
         full_teacher_key = "\n\n".join([p.get("content", "") for p in extracted_data['teacher_key']['pages']])
         
-        print(f"🔍 Phase 2: Comparing answers using '{eval_mode}' mode with Global Key Mapping.")
-
-        # Phase 2: Comparison (Passing the Master Key and leniency threshold)
+        # Phase 2: Comparison
         comparison_results = await self.comparator.compare_documents(
             teacher_data=extracted_data['teacher_key'], 
             student_data=extracted_data['student_script'], 
@@ -105,7 +107,7 @@ class CorrectionPipeline:
             master_key_content=full_teacher_key 
         )
         
-        # Phase 3: Evaluation (Dynamic question-wise summation)
+        # Phase 3: Evaluation (Now uses the updated self.total_marks)
         evaluation_report = self.evaluator.generate_evaluation_report(
             comparison_results=comparison_results,
             teacher_file=extracted_data['teacher_key'].get('file_name'),
@@ -115,6 +117,8 @@ class CorrectionPipeline:
                 "roll_no": extracted_data.get('roll_no')
             }
         )
+        
+        # ... rest of the code (Feedback and Save) remains same ...
         
         # Phase 4: Feedback
         feedback = self.feedback_generator.generate_complete_feedback(
