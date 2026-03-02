@@ -55,7 +55,7 @@ class CorrectionPipeline:
         extracted_data['roll_no'] = student_script.get('roll_no', 'Unknown')
 
         # FIX: Ensure content is cleaned and confidence is preserved for each page
-        for page in student_script['pages']:
+        for page in student_script.get('pages', []):
             raw = page.get('raw_text', '')
             if "CONTENT:" in raw:
                 # Update content to exclude the metadata headers for cleaner comparison
@@ -76,7 +76,13 @@ class CorrectionPipeline:
         
         # --- DYNAMIC TOTAL MARKS DETECTION ---
         # We check the teacher's first page for "METADATA_MAX_MARKS" provided by extraction.py
-        teacher_raw = extracted_data['teacher_key']['pages'][0].get('raw_text', '')
+        teacher_key = extracted_data.get('teacher_key', {})
+        teacher_pages = teacher_key.get('pages', [])
+        
+        if not teacher_pages:
+             raise ValueError("Teacher key extraction failed. No pages found. Check the file or Gemini API key.")
+             
+        teacher_raw = teacher_pages[0].get('raw_text', '')
         max_marks_match = re.search(r"METADATA_MAX_MARKS:\s*([\d.]+)", teacher_raw)
         
         if max_marks_match:

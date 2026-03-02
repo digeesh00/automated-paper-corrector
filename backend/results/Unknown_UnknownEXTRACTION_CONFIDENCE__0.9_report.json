@@ -1,0 +1,29 @@
+{
+  "metadata": {
+    "evaluation_date": "2026-03-02T13:09:39.764317",
+    "teacher_file": "Program-C- AnswerKey.pdf",
+    "student_file": "C-KumsAnswer.pdf",
+    "student_info": {
+      "name": "Unknown",
+      "roll_no": "Unknown\nEXTRACTION_CONFIDENCE: 0.9"
+    }
+  },
+  "evaluation": {
+    "total_score": 7.5,
+    "max_score": 10.0,
+    "percentage": 75.0,
+    "average_similarity": 75.0,
+    "status": "pass",
+    "grade": "B",
+    "page_scores": [
+      {
+        "page_no": 1,
+        "similarity_score": 75.0,
+        "marks_awarded": 7.5,
+        "max_marks": 10.0,
+        "analysis": "SCORE_EARNED: 7.5\nSCORE_TOTAL: 10\nANALYSIS:\nQ1: 2/2. The student correctly states that keywords cannot be used as identifiers and explains that they are \"predefined words meaning of reserved words in C,\" which aligns perfectly with the master key's \"reserved words in C with predefined meanings.\" The examples further reinforce understanding.\nQ2: 0/2. The student's answer focuses on general benefits like \"improve the quality, reliability, readability\" and \"manage the Compilation process.\" While preprocessors are part of compilation, the answer misses the specific technical use of preprocessor directives as defined in the key: \"instructs the compiler to process certain instructions before actual compilation starts, like #include or #define.\" The logical meaning is not aligned with the specific function of preprocessor directives.\nQ3: 1.5/2. The student correctly identifies `strcmp` as a \"string compare function\" and states its purpose to \"check whether the 'hello' and 'world' are same or not.\" For the specific comparison, the student correctly includes \"negative\" as a possible value. However, the master key specifically states \"A negative value\" for this comparison and provides the reason (\"lexicographically less\"). The student includes \"0\" which is not the result for this specific case, and doesn't explicitly state the lexicographical reason.\nQ4: 2/2. The student provides a correct and valid example of initializing a 2D array: `int arr [2][3] = { {5, 6}, {8, 73} }`. This demonstrates the concept accurately, even if the specific dimensions and values differ from the key's example.\nQ5: 2/2. The student defines recursion as \"the function which call by itself,\" which is the core concept matching the master key's \"function calling itself.\" While \"to satisfy the given condition as true\" is slightly less precise than \"to solve a problem,\" the fundamental logical meaning of a function calling itself is clearly expressed."
+      }
+    ],
+    "total_pages_evaluated": 1
+  }
+}

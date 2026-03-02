@@ -1,0 +1,5 @@
+{
+  "name": "Academic Evaluation System",
+  "description": "An automated paper correction system powered by AI to evaluate student scripts against teacher keys.",
+  "requestFramePermissions": []
+}

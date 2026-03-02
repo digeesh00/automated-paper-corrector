@@ -2,7 +2,10 @@
 # Gemini 2.5 Flash Powered Version with Batch Processing
 
 # Core dependencies
-streamlit>=1.28.0
+fastapi>=0.110.0
+uvicorn>=0.29.0
+python-multipart>=0.0.9
+aiofiles>=23.2.1
 python-dotenv>=1.0.0
 
 # PDF and image processing

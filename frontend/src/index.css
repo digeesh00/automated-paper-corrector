@@ -1,0 +1,71 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --color-brand-red: #f87171;
+  --color-brand-blue: #60a5fa;
+  --color-bg-light: #f0f4f8;
+}
+
+body {
+  background: linear-gradient(135deg, #e0e7ff 0%, #f3e8ff 50%, #e0f2fe 100%);
+  background-attachment: fixed;
+  color: #1e293b;
+  min-height: 100vh;
+  font-family: var(--font-sans);
+}
+
+.glass-container {
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.sidebar-glass {
+  background: rgba(255, 255, 255, 0.3);
+  border-right: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.upload-zone-dashed {
+  border: 2px dashed rgba(96, 165, 250, 0.3);
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.upload-zone-dashed:hover {
+  border-color: rgba(96, 165, 250, 0.6);
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+/* Abstract shapes for background */
+.bg-shape {
+  position: fixed;
+  z-index: -1;
+  filter: blur(40px);
+  opacity: 0.4;
+  pointer-events: none;
+}
