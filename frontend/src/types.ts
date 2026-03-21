@@ -9,6 +9,8 @@ export interface EvaluationResult {
     score: number;
     maxScore: number;
     feedback: string;
+    confidenceScore?: number;
+    confidenceReason?: string;
   }[];
   improvementTips: string[];
   detailedFeedback: string;

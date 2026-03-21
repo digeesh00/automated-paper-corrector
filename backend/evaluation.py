@@ -52,17 +52,22 @@ class Evaluator:
         for i, comparison in enumerate(comparison_results):
             analysis = comparison.get("analysis", "")
             similarity = comparison.get("similarity", 0.0)
-            marks = self.parse_marks_from_analysis(analysis)
+            # Use direct parsed fields from compare.py JSON
+            earned = comparison.get("earned", 0.0)
+            total = comparison.get("total", 0.0)
+            questions = comparison.get("questions", [])
+            
             page_info = {
                 "page_no": comparison.get("student_page_no", i + 1),
                 "similarity_score": round(similarity * 100, 2),
-                "marks_awarded": marks["earned"],
-                "max_marks": marks["total"],
-                "analysis": analysis
+                "marks_awarded": earned,
+                "max_marks": total,
+                "analysis": analysis,
+                "questions": questions
             }
             page_scores.append(page_info)
-            cumulative_earned += marks["earned"]
-            cumulative_possible += marks["total"]
+            cumulative_earned += earned
+            cumulative_possible += total
             total_similarity += similarity
 
         # DYNAMIC TOTAL: Use the sum of questions found in the key as the base
@@ -116,6 +121,7 @@ class Evaluator:
     def generate_evaluation_report(
         self, 
         comparison_results: List[Dict[str, Any]], 
+        teacher_marks_dict: Optional[Dict[str, Dict[str, float]]] = None,
         teacher_file: str = "Unknown", 
         student_file: str = "Unknown",
         student_info: Optional[Dict] = None
@@ -123,26 +129,35 @@ class Evaluator:
         """Accumulates question-wise scores into a final report by summing up AI analysis."""
         page_scores = []
         total_earned = 0.0
-        calculated_max_score = 0.0  # <--- Start at 0 for dynamic summing
+        
+        # Calculate TRUE max score from the teacher key, or fallback to class property
+        if teacher_marks_dict and len(teacher_marks_dict) > 0:
+            actual_total = sum(v["marks"] for v in teacher_marks_dict.values() if "marks" in v)
+        else:
+            actual_total = self.total_marks
         
         for res in comparison_results:
             analysis = res.get('analysis', '')
-            marks = self.parse_marks_from_analysis(analysis)
+            earned = res.get("earned", 0.0)
+            total = res.get("total", 0.0)
+            questions = res.get("questions", [])
             
             page_scores.append({
                 "page_no": res.get('student_page_no', 0),
-                "marks_awarded": marks['earned'],
-                "max_marks": marks['total'], # This comes from 'SCORE_TOTAL' in analysis
+                "marks_awarded": earned,
+                "max_marks": total,
                 "analysis": analysis,
-                "extraction_confidence": res.get('extraction_confidence', 0.0)
+                "questions": questions,
+                "extraction_confidence": res.get('extraction_confidence', 0.0),
+                "extraction_reason": res.get('extraction_reason', 'N/A')
             })
             
-            total_earned += marks['earned']
-            # DYNAMIC FIX: Sum up the total marks from each question/page analysis
-            calculated_max_score += marks['total']
+            
+            total_earned += earned
 
-        # Use the calculated sum instead of the static self.total_marks
-        actual_total = calculated_max_score if calculated_max_score > 0 else self.total_marks
+        # Cap the earned total at actual_total to be 100% safe
+        if total_earned > actual_total > 0:
+            total_earned = actual_total
         
         # Calculate percentage based on the sum of questions
         percentage = (total_earned / actual_total) * 100 if actual_total > 0 else 0

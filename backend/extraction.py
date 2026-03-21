@@ -1,155 +1,176 @@
 """
 Text extraction module optimized for Question-Centric Mapping.
-Includes Technical Glossary to fix spelling errors and Confidence Scoring.
+Upgraded to Qwen3.5-9B with Parallel Async Processing and 3-argument support.
 """
 import asyncio
 import os
 import re
+import base64
+import io
+import httpx
 from typing import Dict, List, Any, Optional
 from pathlib import Path
 from PIL import Image
-import google.generativeai as genai
 from pdf2image import convert_from_path
-import time
 
 class DocumentExtractor:
-    """Handles text extraction from PDF or Images using Gemini 2.5 Flash."""
+    """Handles text extraction from PDF or Images using Qwen 3.5 via OpenRouter."""
     
     def __init__(self):
-        """Initialize the document extractor with Gemini."""
-        api_key = os.getenv("GEMINI_API_KEY")
-        if not api_key:
-            raise ValueError("GEMINI_API_KEY not found in environment variables")
+        self.api_key = os.getenv("OPENROUTER_API_KEY")
+        if not self.api_key:
+            raise ValueError("OPENROUTER_API_KEY not found in environment variables")
         
-        genai.configure(api_key=api_key)
-        self.model = genai.GenerativeModel('gemini-2.5-flash')
-        self.rate_limit_lock = asyncio.Semaphore(1)
-    
-    async def transcribe_page(self, image: Image.Image, page_no: int) -> Dict[str, Any]:
-        """Transcribes a single page with Technical Glossary and Confidence scoring."""
+        self.url = "https://openrouter.ai/api/v1/chat/completions"
+        self.model_name = 'qwen/qwen3.5-9b'
+        
+        # Limit to 5 concurrent pages to avoid rate limits
+        self.rate_limit_lock = asyncio.Semaphore(5)
+
+    async def transcribe_page(self, client: httpx.AsyncClient, image: Image.Image, page_no: int) -> Dict[str, Any]:
+        """Transcribes a single page with Technical Glossary and Speed optimizations."""
         async with self.rate_limit_lock:
-            # implement retry/backoff for API quota errors
-            retry_count = 4
+            retry_count = 3
             for attempt in range(retry_count):
                 try:
+                    # Adaptive resizing to keep payloads small/fast
+                    if image.width > 2000:
+                        image.thumbnail((2000, 2000))
+
                     header_instruction = ""
                     if page_no == 1:
                         header_instruction = (
-                            "First, look at the top right corner of the page. "
-                            "Identify the Student Name and Roll Number written there. "
-                            "Format them as METADATA_NAME: [Name] and METADATA_ROLL: [Roll No]. "
-                            "Identify the 'MAX MARKS' or 'TOTAL MARKS' listed in the header. Format as METADATA_MAX_MARKS: [Number]."
+                            "First, look at the top right corner. "
+                            "Identify the Student Name and Roll Number. "
+                            "Format: METADATA_NAME: [Name], METADATA_ROLL: [Roll No]. "
                         )
                     
                     glossary = (
                         "TECHNICAL GLOSSARY: Inductive, Gradient, Divergence, Activation, "
-                        "Penetration, NetBIOS, Vulnerability, Supervised, Reinforcement, MSE. "
-                        "Use this glossary to correct minor OCR/handwriting misspellings."
+                        "Penetration, NetBIOS, Vulnerability, Supervised, Reinforcement, MSE."
                     )
 
                     prompt = (
                         f"{header_instruction}\n"
                         f"{glossary}\n"
                         "Transcribe the text from this exam paper exactly. "
-                        "IMPORTANT: Identify all Question Numbers (e.g., Q1, Q2, Part A) on their own line. "
-                        "Include an EXTRACTION_CONFIDENCE score between 0 and 1 based on handwriting legibility. "
-                        "Return the output in this strict format:\n"
-                        "METADATA_NAME: [Name or 'Unknown']\n"
-                        "METADATA_ROLL: [Roll No or 'Unknown']\n"
-                        "EXTRACTION_CONFIDENCE: [Numeric Score]\n"
-                        "CONTENT: [The full transcribed text]"
+                        "Identify all Question Numbers (e.g., Q1, Q2) on their own line.\n"
+                        "RULES FOR CALCULATING EXTRACTION_CONFIDENCE:\n"
+                        "- Start with a baseline of 1.0.\n"
+                        "- Deduct 0.15 for every word or phrase that is completely unreadable or heavily blurred.\n"
+                        "- Deduct 0.10 if the page appears slightly cut off at the edges but is mostly readable.\n"
+                        "- If the text is perfectly clear and legible, return 1.0.\n"
+                        "- Lowest possible score is 0.1.\n"
+                        "Return format exactly as follows:\n"
+                        "METADATA_NAME: [Name]\n"
+                        "METADATA_ROLL: [Roll No]\n"
+                        "EXTRACTION_CONFIDENCE: [Score 0.1-1.0]\n"
+                        "EXTRACTION_REASON: [Brief 1 sentence reason for the score]\n"
+                        "CONTENT: [Full Transcription]"
                     )
                     
-                    # brief pause between calls to stay within free-tier limits
-                    await asyncio.sleep(5) 
-                    response = await self.model.generate_content_async([prompt, image])
-                    raw_text = response.text if response.text else ""
+                    buffered = io.BytesIO()
+                    if image.mode in ('RGBA', 'P'):
+                        image = image.convert('RGB')
+                    image.save(buffered, format="JPEG", quality=80)
+                    img_b64 = base64.b64encode(buffered.getvalue()).decode('utf-8')
 
-                    # Robust Parsing with Regex
-                    student_name = "Unknown"
-                    roll_no = "Unknown"
-                    confidence = 0.0
+                    payload = {
+                        "model": self.model_name,
+                        "messages": [{
+                            "role": "user",
+                            "content": [
+                                {"type": "text", "text": prompt},
+                                {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{img_b64}"}}
+                            ]
+                        }],
+                        "temperature": 0.1,
+                        "include_reasoning": False, # Disable thinking for speed
+                        "reasoning": {"effort": "none"}
+                    }
+
+                    headers = {
+                        "Authorization": f"Bearer {self.api_key}",
+                        "HTTP-Referer": "http://localhost:8000",
+                        "X-Title": "Paper Corrector",
+                        "Content-Type": "application/json"
+                    }
+
+                    response = await client.post(self.url, headers=headers, json=payload, timeout=120.0)
+                    response.raise_for_status()
+                    res_json = response.json()
                     
-                    # Extract Name
+                    raw_text = res_json["choices"][0]["message"].get("content", "")
+
+                    # --- Robust Parsing ---
                     name_match = re.search(r"METADATA_NAME:\s*(.*)", raw_text)
-                    if name_match:
-                        student_name = name_match.group(1).split("\n")[0].strip()
-
-                    # Extract Roll
                     roll_match = re.search(r"METADATA_ROLL:\s*(.*)", raw_text)
-                    if roll_match:
-                        roll_no = roll_match.group(1).split("\n")[0].strip()
-
-                    # FIX: Improved Confidence Extraction
                     conf_match = re.search(r"EXTRACTION_CONFIDENCE:\s*([\d.]+)", raw_text)
-                    if conf_match:
-                        try:
-                            confidence = float(conf_match.group(1))
-                        except ValueError:
-                            confidence = 0.5  # Fallback
+                    reason_match = re.search(r"EXTRACTION_REASON:\s*(.*)", raw_text)
                     
-                    # Extract Content
-                    content_part = raw_text
-                    if "CONTENT:" in raw_text:
-                        content_part = raw_text.split("CONTENT:")[1].strip()
-
                     return {
                         "page_no": page_no, 
-                        "content": content_part, 
-                        "student_name": student_name,
-                        "roll_no": roll_no,
-                        "extraction_confidence": confidence,
+                        "content": raw_text.split("CONTENT:")[1].strip() if "CONTENT:" in raw_text else raw_text, 
+                        "student_name": name_match.group(1).strip() if name_match else "Unknown",
+                        "roll_no": roll_match.group(1).strip() if roll_match else "Unknown",
+                        "extraction_confidence": float(conf_match.group(1)) if conf_match else 0.85,
+                        "extraction_reason": reason_match.group(1).strip() if reason_match else "N/A",
                         "raw_text": raw_text 
                     }
 
                 except Exception as e:
-                    # handle rate limit or quota errors by waiting longer before retrying
-                    if "429" in str(e):
-                        # log the occurrence and back off progressively
-                        wait = 10 * (attempt + 1)
-                        print(f"⚠️ Rate limit hit on page {page_no}, attempt {attempt+1}/{retry_count}. waiting {wait}s")
-                        await asyncio.sleep(wait)
+                    if attempt < retry_count - 1:
+                        await asyncio.sleep(5 * (attempt + 1))
                         continue
-                    # for final attempt or other errors, print and return defaults
-                    print(f"❌ Error on page {page_no}: {str(e)}")
-                    if attempt == retry_count - 1:
-                        return {
-                            "page_no": page_no, "content": "", 
-                            "student_name": "Unknown", "roll_no": "Unknown",
-                            "extraction_confidence": 0.0
-                        }
-                    await asyncio.sleep(2)
-                    continue
-        
-    async def extract_from_file(self, file_path: str, source: str) -> Dict[str, Any]:
-        """Extract text from a file sequentially."""
+                    return {"page_no": page_no, "content": f"ERROR: {str(e)}", "student_name": "Unknown"}
+
+    async def extract_from_file(self, client: httpx.AsyncClient, file_path: str, source: str) -> Dict[str, Any]:
+        """Parallel async extraction for PDF/Image files."""
         try:
-            print(f"📑 Extracting {source} from: {Path(file_path).name}")
+            print(f"📑 Extracting {source}: {Path(file_path).name}")
             file_ext = Path(file_path).suffix.lower()
-            images = convert_from_path(file_path, dpi=200) if file_ext == '.pdf' else [Image.open(file_path)]
             
-            pages_content = []
-            for i, img in enumerate(images):
-                result = await self.transcribe_page(img, i + 1)
-                pages_content.append(result)
+            # 130 DPI is the sweet spot for Qwen3.5 vision accuracy vs speed
+            images = convert_from_path(file_path, dpi=130) if file_ext == '.pdf' else [Image.open(file_path)]
+            
+            tasks = [self.transcribe_page(client, img, i + 1) for i, img in enumerate(images)]
+            pages_content = await asyncio.gather(*tasks)
+            pages_content.sort(key=lambda x: x['page_no'])
             
             return {
                 "source": source,
                 "total_pages": len(pages_content),
                 "pages": pages_content,
                 "file_name": Path(file_path).name,
-                "student_name": pages_content[0].get("student_name", "Unknown") if pages_content else "Unknown",
-                "roll_no": pages_content[0].get("roll_no", "Unknown") if pages_content else "Unknown"
+                "student_name": pages_content[0].get("student_name", "Unknown"),
+                "roll_no": pages_content[0].get("roll_no", "Unknown")
             }
         except Exception as e:
-            print(f"❌ Extraction Error: {str(e)}")
             return {"source": source, "pages": [], "error": str(e)}
 
 async def extract_documents(teacher_path: str, student_path: str, reference_path: Optional[str] = None) -> Dict[str, Any]:
+    """Entry point compatible with your 3-argument pipeline call."""
     extractor = DocumentExtractor()
-    teacher_data = await extractor.extract_from_file(teacher_path, "teacher")
-    student_data = await extractor.extract_from_file(student_path, "student")
-    return {
-        "teacher_key": teacher_data, "student_script": student_data,
+    async with httpx.AsyncClient() as client:
+        # Create core tasks
+        tasks = [
+            extractor.extract_from_file(client, teacher_path, "teacher"),
+            extractor.extract_from_file(client, student_path, "student")
+        ]
+        
+        # Add optional reference task if provided by pipeline.py
+        if reference_path:
+            tasks.append(extractor.extract_from_file(client, reference_path, "reference"))
+            
+        results = await asyncio.gather(*tasks)
+    
+    output = {
+        "teacher_key": results[0],
+        "student_script": results[1],
         "extraction_status": "completed"
     }
+    
+    if len(results) > 2:
+        output["reference_material"] = results[2]
+        
+    return output

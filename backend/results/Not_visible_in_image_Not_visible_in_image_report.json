@@ -1,0 +1,62 @@
+{
+  "evaluation": {
+    "student_name": "[Not visible in image]",
+    "roll_no": "[Not visible in image]",
+    "total_score": 5.0,
+    "max_score": 10.0,
+    "grade": "C",
+    "status": "Pass",
+    "page_scores": [
+      {
+        "page_no": 1,
+        "marks_awarded": 5.0,
+        "max_marks": 10.0,
+        "analysis": "Q1: 1.5/2.0 - The student correctly states that keywords cannot be used as identifiers and identifies them as 'predefined words' or 'reserved words'. However, the grammar ('Keywords are cannot be used') and phrasing ('predefined words meaning of reserved words') are significantly poor. Despite the grammatical issues, the core conceptual understanding aligns with the key's explanation of reserved words with predefined meanings. | Q2: 0.0/2.0 - The student's answer describes general benefits of good coding practices ('improve the quality, reliability, readability') rather than the specific technical function of a preprocessor directive as defined in the master key ('instructs the compiler to process certain instructions before actual compilation starts'). The answer fails to capture the core mechanism. | Q3: 0.5/2.0 - The student correctly identifies that the `strcmp` function checks for equality and that a negative value is possible. However, for the specific comparison 'Hello' vs 'World', the result is definitively a negative value (as 'Hello' is lexicographically less than 'World'), not '0 or negative'. Including '0' makes the answer imprecise and incorrect for this specific instance. The grammar is also very poor ('it is used to string compare function check whether'). The justification for the negative value is also missing. | Q4: 2.0/2.0 - The student provides a syntactically correct and valid example of initializing a 2D array, which perfectly matches the requirement of the master key. The specific values used do not impact the correctness of the example. | Q5: 1.0/2.0 - The student correctly identifies that recursion is a 'function which call by itself' (grammatically should be 'calls itself'). This captures the core mechanism. However, the purpose is vaguely and less accurately stated as 'to satisfy the given condition as true' compared to the key's precise 'to solve a problem'. The explanation of the purpose lacks depth and accuracy.",
+        "questions": [
+          {
+            "id": "Q1",
+            "earned": 1.5,
+            "feedback": "The student correctly states that keywords cannot be used as identifiers and identifies them as 'predefined words' or 'reserved words'. However, the grammar ('Keywords are cannot be used') and phrasing ('predefined words meaning of reserved words') are significantly poor. Despite the grammatical issues, the core conceptual understanding aligns with the key's explanation of reserved words with predefined meanings.",
+            "confidence": 0.9,
+            "confidence_reason": "N/A",
+            "possible": 2.0
+          },
+          {
+            "id": "Q2",
+            "earned": 0.0,
+            "feedback": "The student's answer describes general benefits of good coding practices ('improve the quality, reliability, readability') rather than the specific technical function of a preprocessor directive as defined in the master key ('instructs the compiler to process certain instructions before actual compilation starts'). The answer fails to capture the core mechanism.",
+            "confidence": 0.95,
+            "confidence_reason": "N/A",
+            "possible": 2.0
+          },
+          {
+            "id": "Q3",
+            "earned": 0.5,
+            "feedback": "The student correctly identifies that the `strcmp` function checks for equality and that a negative value is possible. However, for the specific comparison 'Hello' vs 'World', the result is definitively a negative value (as 'Hello' is lexicographically less than 'World'), not '0 or negative'. Including '0' makes the answer imprecise and incorrect for this specific instance. The grammar is also very poor ('it is used to string compare function check whether'). The justification for the negative value is also missing.",
+            "confidence": 0.9,
+            "confidence_reason": "N/A",
+            "possible": 2.0
+          },
+          {
+            "id": "Q4",
+            "earned": 2.0,
+            "feedback": "The student provides a syntactically correct and valid example of initializing a 2D array, which perfectly matches the requirement of the master key. The specific values used do not impact the correctness of the example.",
+            "confidence": 1.0,
+            "confidence_reason": "N/A",
+            "possible": 2.0
+          },
+          {
+            "id": "Q5",
+            "earned": 1.0,
+            "feedback": "The student correctly identifies that recursion is a 'function which call by itself' (grammatically should be 'calls itself'). This captures the core mechanism. However, the purpose is vaguely and less accurately stated as 'to satisfy the given condition as true' compared to the key's precise 'to solve a problem'. The explanation of the purpose lacks depth and accuracy.",
+            "confidence": 0.9,
+            "confidence_reason": "N/A",
+            "possible": 2.0
+          }
+        ],
+        "extraction_confidence": 0.95
+      }
+    ],
+    "timestamp": "2026-03-18 08:34:54"
+  }
+}

@@ -4,6 +4,7 @@ import os
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pipeline import CorrectionPipeline
+from typing import Optional
 
 app = FastAPI(title="Automated Paper Correction API")
 
@@ -31,6 +32,7 @@ def save_upload_file_tmp(upload_file: UploadFile) -> str:
 async def evaluate_papers(
     teacherKey: UploadFile = File(...),
     studentScript: UploadFile = File(...),
+    referenceFile: Optional[UploadFile] = File(None),
     subject: str = Form("Language")
 ):
     if not teacherKey.filename or not studentScript.filename:
@@ -38,6 +40,9 @@ async def evaluate_papers(
         
     t_path = save_upload_file_tmp(teacherKey)
     s_path = save_upload_file_tmp(studentScript)
+    r_path = None
+    if referenceFile and referenceFile.filename:
+        r_path = save_upload_file_tmp(referenceFile)
     
     try:
         # Run the existing pipeline logic asynchronously
@@ -45,6 +50,7 @@ async def evaluate_papers(
         results = await pipeline.run_async(
             t_path=t_path,
             s_path=s_path,
+            r_path=r_path,
             subject=subject
         )
         
@@ -63,15 +69,44 @@ async def evaluate_papers(
         # Parse questions from all pages into a flat array, mapping to expected frontend shape
         frontend_questions = []
         for p in page_scores:
+            extract_conf = p.get('extraction_confidence', 0.85)
+            extract_reason = p.get('extraction_reason', "N/A - Image was perfectly legible.")
+            
             for q in p.get('questions', []):
                  frontend_questions.append({
                      "id": q.get('id', 'N/A'),
-                     "score": q.get('score', 0),
-                     "maxScore": q.get('max_score', 0),
-                     "feedback": q.get('feedback', '')
+                     "score": q.get('earned', 0),
+                     "maxScore": q.get('possible', 0),
+                     "feedback": q.get('feedback', ''),
+                     "evalConfidence": q.get('confidence', 1.0),
+                     "evalReason": q.get('confidence_reason', 'N/A'),
+                     "extractConfidence": extract_conf,
+                     "extractReason": extract_reason
                  })
                  
         detailed_feedback = results.get("feedback", "No detailed feedback provided by the pipeline.")
+                 
+        # Generate dynamic improvement tips based on where marks were lost
+        improvement_tips = []
+        # Sort questions by marks lost to prioritize the biggest areas for improvement
+        sorted_questions = sorted(frontend_questions, key=lambda x: x['maxScore'] - x['score'], reverse=True)
+        
+        for q in sorted_questions:
+            marks_lost = q['maxScore'] - q['score']
+            if marks_lost > 0:
+                # Keep feedback concise for the tip
+                clean_feedback = str(q['feedback']).strip().split('\n')[0]
+                tip = f"Review {q['id']}: {clean_feedback} (Lost {marks_lost} marks)"
+                improvement_tips.append(tip)
+                
+        if not improvement_tips:
+            improvement_tips = [
+                "Excellent work! All questions received full marks.",
+                "Keep maintaining this level of precision and accuracy."
+            ]
+            
+        # Limit to top 5 most critical tips to avoid overwhelming the UI
+        improvement_tips = improvement_tips[:5]
                  
         # Construct the response object that matches the App.tsx Result type
         frontend_response = {
@@ -81,10 +116,7 @@ async def evaluate_papers(
             "grade": eval_data.get("grade", "N/A"),
             "status": str(eval_data.get("status", "FAIL")).upper(),
             "questionBreakdown": frontend_questions,
-            "improvementTips": [
-                "Review the feedback to understand missed points.",
-                "Ensure logical meaning matches the teacher's key."
-            ], # Static tips for now unless pipeline is updated to return them natively
+            "improvementTips": improvement_tips,
             "detailedFeedback": detailed_feedback,
             "overallReport": f"Final Grade: {eval_data.get('grade', 'N/A')} | Status: {eval_data.get('status', 'FAIL')}"
         }
@@ -99,6 +131,7 @@ async def evaluate_papers(
         # Cleanup temp files
         if os.path.exists(t_path): os.remove(t_path)
         if os.path.exists(s_path): os.remove(s_path)
+        if r_path and os.path.exists(r_path): os.remove(r_path)
 
 if __name__ == "__main__":
     import uvicorn

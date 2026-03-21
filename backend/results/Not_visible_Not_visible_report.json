@@ -1,0 +1,63 @@
+{
+  "evaluation": {
+    "student_name": "[Not Visible]",
+    "roll_no": "[Not Visible]",
+    "total_score": 8.0,
+    "max_score": 10.0,
+    "grade": "A+",
+    "status": "Pass",
+    "page_scores": [
+      {
+        "page_no": 1,
+        "marks_awarded": 8.0,
+        "max_marks": 10.0,
+        "analysis": "Q1: 2.0/2.0 - The student correctly states that keywords cannot be used as identifiers because they are reserved words with predefined meanings in C. The examples provided further demonstrate understanding. | Q2: 0.5/2.0 - The student's answer 'manage the compilation process' is a very general statement and lacks the specific detail provided in the master key about instructing the compiler to process instructions *before actual compilation starts*. The other points about improving quality, reliability, and readability are benefits, not the direct use as defined by the key. | Q3: 1.5/2.0 - The student correctly identifies the function as a 'string compare function' and states that it checks if strings are the same. Crucially, they mention 'negative' as a possible value, which is correct for the given input ('Hello' vs 'World'). The inclusion of '0' is generally true for strcmp but not for this specific case, leading to a slight deduction. | Q4: 2.0/2.0 - The student provides a syntactically correct and valid example of a 2D array initialization with a set of values, matching the master key's requirement. | Q5: 2.0/2.0 - The student correctly defines recursion as 'the function which call by itself'. The phrase 'to satisfy the given condition as true' is an acceptable interpretation of 'to solve a problem'.",
+        "questions": [
+          {
+            "id": "Q1",
+            "earned": 2.0,
+            "feedback": "The student correctly states that keywords cannot be used as identifiers because they are reserved words with predefined meanings in C. The examples provided further demonstrate understanding.",
+            "confidence": 1.0,
+            "confidence_reason": "N/A",
+            "possible": 2.0
+          },
+          {
+            "id": "Q2",
+            "earned": 0.5,
+            "feedback": "The student's answer 'manage the compilation process' is a very general statement and lacks the specific detail provided in the master key about instructing the compiler to process instructions *before actual compilation starts*. The other points about improving quality, reliability, and readability are benefits, not the direct use as defined by the key.",
+            "confidence": 0.5,
+            "confidence_reason": "Very ambiguous answer, severe difficulty mapping to the teacher's key.",
+            "possible": 2.0
+          },
+          {
+            "id": "Q3",
+            "earned": 1.5,
+            "feedback": "The student correctly identifies the function as a 'string compare function' and states that it checks if strings are the same. Crucially, they mention 'negative' as a possible value, which is correct for the given input ('Hello' vs 'World'). The inclusion of '0' is generally true for strcmp but not for this specific case, leading to a slight deduction.",
+            "confidence": 0.7,
+            "confidence_reason": "Partial completion, logic is slightly confusing or you had to guess the student's intent.",
+            "possible": 2.0
+          },
+          {
+            "id": "Q4",
+            "earned": 2.0,
+            "feedback": "The student provides a syntactically correct and valid example of a 2D array initialization with a set of values, matching the master key's requirement.",
+            "confidence": 1.0,
+            "confidence_reason": "N/A",
+            "possible": 2.0
+          },
+          {
+            "id": "Q5",
+            "earned": 2.0,
+            "feedback": "The student correctly defines recursion as 'the function which call by itself'. The phrase 'to satisfy the given condition as true' is an acceptable interpretation of 'to solve a problem'.",
+            "confidence": 0.85,
+            "confidence_reason": "Good match, but had to rely heavily on synonyms or interpret poor grammar.",
+            "possible": 2.0
+          }
+        ],
+        "extraction_confidence": 1.0,
+        "extraction_reason": "The text is perfectly clear and legible, allowing for a complete transcription without deductions."
+      }
+    ],
+    "timestamp": "2026-03-19 21:59:19"
+  }
+}

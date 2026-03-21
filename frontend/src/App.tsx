@@ -32,6 +32,7 @@ export default function App() {
   const [showPassword, setShowPassword] = useState(false);
   const [teacherKey, setTeacherKey] = useState<FileData | null>(null);
   const [studentScript, setStudentScript] = useState<FileData | null>(null);
+  const [referenceFile, setReferenceFile] = useState<FileData | null>(null);
   const [isEvaluating, setIsEvaluating] = useState(false);
   const [result, setResult] = useState<EvaluationResult | null>(null);
   const [subject, setSubject] = useState('Language');
@@ -43,7 +44,7 @@ export default function App() {
     }
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, type: 'teacher' | 'student') => {
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, type: 'teacher' | 'student' | 'reference') => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -57,7 +58,8 @@ export default function App() {
         originalFile: file
       };
       if (type === 'teacher') setTeacherKey(fileData);
-      else setStudentScript(fileData);
+      else if (type === 'student') setStudentScript(fileData);
+      else setReferenceFile(fileData);
     };
 
     if (file.type.includes('image') || file.type.includes('pdf')) {
@@ -76,6 +78,9 @@ export default function App() {
       const formData = new FormData();
       formData.append('teacherKey', teacherKey.originalFile);
       formData.append('studentScript', studentScript.originalFile);
+      if (referenceFile) {
+        formData.append('referenceFile', referenceFile.originalFile);
+      }
       formData.append('subject', subject);
 
       const response = await fetch('http://localhost:8000/api/evaluate', {
@@ -100,16 +105,15 @@ export default function App() {
         grade: 'A',
         status: 'PASS',
         questionBreakdown: [
-          { id: 'Q1', score: 2, maxScore: 2, feedback: 'Perfect answer.' },
-          { id: 'Q2', score: 0, maxScore: 2, feedback: 'Missing key concepts.' },
-          { id: 'Q3', score: 2, maxScore: 2, feedback: 'Well explained.' },
-          { id: 'Q4', score: 1, maxScore: 2, feedback: 'Partial credit for structure.' },
-          { id: 'Q5', score: 2, maxScore: 2, feedback: 'Excellent recursion definition.' }
+          { id: 'Q1', score: 2, maxScore: 2, feedback: 'Perfect answer.', evalConfidence: 0.98, evalReason: 'N/A', extractConfidence: 0.90, extractReason: 'Clear handwriting' },
+          { id: 'Q2', score: 0, maxScore: 2, feedback: 'Missing key concepts.', evalConfidence: 0.65, evalReason: 'Ambigous conceptual explanation required extensive interpretation.', extractConfidence: 0.70, extractReason: 'Difficult handwriting or poor image quality' },
+          { id: 'Q3', score: 2, maxScore: 2, feedback: 'Well explained.', evalConfidence: 0.9, evalReason: 'N/A', extractConfidence: 0.88, extractReason: 'Clear handwriting' },
+          { id: 'Q4', score: 1, maxScore: 2, feedback: 'Partial credit for structure.', evalConfidence: 0.8, evalReason: 'Partial match on concepts.', extractConfidence: 0.95, extractReason: 'Clear handwriting' },
+          { id: 'Q5', score: 2, maxScore: 2, feedback: 'Excellent recursion definition.', evalConfidence: 0.95, evalReason: 'N/A', extractConfidence: 0.85, extractReason: 'Clear handwriting' }
         ],
         improvementTips: [
-          'Focus on precise technical vocabulary.',
-          'Ensure all preprocessor directives are included.',
-          'Double-check data types in array initializations.'
+          'Review Q2: Ambiguous conceptual explanation required extensive interpretation. (Lost 2.0 marks)',
+          'Review Q4: Partial match on concepts. (Lost 1.0 marks)'
         ],
         detailedFeedback: 'Technical Breakdown: SCORE_EARNED: 7.0 SCORE_TOTAL: 10 ANALYSIS: Q1: 2/2. The student correctly states that "Keywords cannot be used as Identifiers" and explains why they are "predefined words" and "reserved words" in C. This matches the logical meaning of the master key. Q2: 0/2. The student\'s answer "improve the quality, reliability, readability and manage the Compilation process" does not capture the core logical meaning of a preprocessor directive, which is to instruct the compiler to process certain instructions before actual compilation starts.',
         overallReport: 'Unsatisfactory. Significant conceptual gaps found. Please review the key and retry. Final Grade: A Status: PASS Total Marks: 7.0/10.0 Mean Conceptual Accuracy: 0.0%'
@@ -229,7 +233,7 @@ export default function App() {
 
           <div className="flex-1">
             {/* Upload Section */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
               <UploadZone
                 title="Teacher Key"
                 file={teacherKey}
@@ -241,6 +245,12 @@ export default function App() {
                 file={studentScript}
                 onUpload={(e) => handleFileUpload(e, 'student')}
                 onClear={() => setStudentScript(null)}
+              />
+              <UploadZone
+                title="Reference Material"
+                file={referenceFile}
+                onUpload={(e) => handleFileUpload(e, 'reference')}
+                onClear={() => setReferenceFile(null)}
               />
             </div>
 
@@ -306,34 +316,81 @@ export default function App() {
                     </div>
                   </section>
 
-                  <section className="glass-card rounded-3xl p-8">
-                    <div className="flex items-center gap-4 text-slate-800 mb-4">
-                      <CheckCircle2 className="text-emerald-500" size={28} />
-                      <h3 className="text-xl font-bold">Detailed Feedback</h3>
-                    </div>
-                    <p className="text-slate-600 leading-relaxed">
-                      {result.detailedFeedback}
-                    </p>
-                  </section>
+                  
 
                   <section>
                     <div className="flex items-center gap-3 mb-6 text-slate-800">
                       <ListChecks size={24} className="text-blue-500" />
-                      <h2 className="text-xl font-bold">Question Breakdown</h2>
+                      <h2 className="text-xl font-bold">Detailed Question Evaluation</h2>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 gap-6">
                       {result.questionBreakdown.map((q) => (
-                        <div key={q.id} className="glass-card rounded-2xl p-5 flex items-start gap-4">
-                          <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center font-bold text-slate-600 shrink-0">
-                            {q.id}
-                          </div>
-                          <div>
-                            <div className="flex items-center gap-2 mb-1">
-                              <span className="font-bold text-slate-800">{q.score}/{q.maxScore}</span>
-                              <span className="text-xs text-slate-400 uppercase font-bold tracking-widest">Marks</span>
+                        <div key={q.id} className="glass-card rounded-2xl p-6 flex flex-col md:flex-row items-start gap-6 border-l-4 border-l-blue-400">
+                          
+                          {/* Left Column: ID & Marks & Scores */}
+                          <div className="w-full md:w-40 shrink-0 flex flex-col gap-3">
+                            <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center font-black text-blue-600 text-lg shadow-sm">
+                              {q.id}
                             </div>
-                            <p className="text-sm text-slate-500">{q.feedback}</p>
+                            <div>
+                               <div className="flex items-end gap-1 mb-1">
+                                <span className="font-bold text-2xl text-slate-800 leading-none">{q.score}</span>
+                                <span className="text-slate-400 font-medium">/{q.maxScore}</span>
+                              </div>
+                              <span className="text-[10px] text-slate-400 uppercase font-black tracking-widest">Marks</span>
+                            </div>
+                            
+                            {/* Confidence Score Badges */}
+                             <div className="mt-2 space-y-3">
+                                <div>
+                                    <span className="text-[10px] text-slate-400 uppercase font-bold tracking-widest block mb-1">OCR Match</span>
+                                    <div className={`inline-flex items-center px-2 py-1 rounded-md text-[11px] font-bold ${
+                                        (q.extractConfidence ?? 1) >= 0.85 ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'
+                                    }`}>
+                                        {Math.round((q.extractConfidence ?? 1) * 100)}% Confidence
+                                    </div>
+                                </div>
+                                <div>
+                                    <span className="text-[10px] text-slate-400 uppercase font-bold tracking-widest block mb-1">AI Logic Match</span>
+                                    <div className={`inline-flex items-center px-2 py-1 rounded-md text-[11px] font-bold ${
+                                        (q.evalConfidence ?? 1) >= 0.85 ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'
+                                    }`}>
+                                        {Math.round((q.evalConfidence ?? 1) * 100)}% Confidence
+                                    </div>
+                                </div>
+                             </div>
                           </div>
+                          
+                          {/* Right Column: Feedback & Warning */}
+                          <div className="flex-1">
+                            <h4 className="text-sm font-bold text-slate-800 mb-2">Evaluator Feedback</h4>
+                            <p className="text-slate-600 leading-relaxed">{q.feedback}</p>
+                            
+                            <div className="mt-4 space-y-3">
+                                {/* Extraction Warning Panel */}
+                                {(q.extractConfidence ?? 1) < 0.85 && q.extractReason && q.extractReason !== 'N/A' && (
+                                    <div className="bg-orange-50/80 border border-orange-200/60 rounded-xl p-4 flex items-start gap-3">
+                                       <AlertCircle className="text-orange-500 shrink-0 mt-0.5" size={18} />
+                                       <div>
+                                           <h5 className="text-[11px] font-bold text-orange-800 uppercase tracking-wider mb-1">Extraction Confidence Warning</h5>
+                                           <p className="text-sm text-orange-700/80">{q.extractReason}</p>
+                                       </div>
+                                    </div>
+                                )}
+                                
+                                {/* Evaluation Warning Panel */}
+                                {(q.evalConfidence ?? 1) < 0.85 && q.evalReason && q.evalReason !== 'N/A' && (
+                                    <div className="bg-amber-50/80 border border-amber-200/60 rounded-xl p-4 flex items-start gap-3">
+                                       <AlertCircle className="text-amber-500 shrink-0 mt-0.5" size={18} />
+                                       <div>
+                                           <h5 className="text-[11px] font-bold text-amber-800 uppercase tracking-wider mb-1">Evaluation Confidence Warning</h5>
+                                           <p className="text-sm text-amber-700/80">{q.evalReason}</p>
+                                       </div>
+                                    </div>
+                                )}
+                            </div>
+                          </div>
+                          
                         </div>
                       ))}
                     </div>

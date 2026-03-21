@@ -1,0 +1,63 @@
+{
+  "evaluation": {
+    "student_name": "[Not Provided]",
+    "roll_no": "[Not Provided]",
+    "total_score": 4.0,
+    "max_score": 10.0,
+    "grade": "RA (Re-Appearance)",
+    "status": "Pass",
+    "page_scores": [
+      {
+        "page_no": 1,
+        "marks_awarded": 4.0,
+        "max_marks": 10.0,
+        "analysis": "Q1: 2.0/2.0 - The student correctly identifies that keywords are reserved words in C and cannot be used as identifiers. Despite poor grammar ('Keywords are cannot be used' and 'predefined words meaning of reserved words'), the core conceptual understanding aligns with the Master Key. | Q2: 0.0/2.0 - The student's answer describes generic benefits or goals (improving quality, reliability, readability, managing compilation process) rather than specifying the direct 'use' of a preprocessor directive as defined in the Master Key (instructing the compiler to process instructions before compilation). The answer does not align with the functional definition requested. | Q3: 0.5/2.0 - The student correctly identifies `strcmp` as a string comparison function and mentions 'negative' as a possible return value, which is correct for the specific comparison 'Hello' vs 'World'. However, the answer includes '0' as a possibility, which is not the case for this specific input, and lacks the crucial justification provided in the Master Key ('because \"Hello\" is lexicographically less than \"World\"'). The grammar is also very poor ('it is used to string compare function check whether'). | Q4: 0.0/2.0 - The student was asked for an example of a 2D array initialization but provided a 3D array (`arr[2][2][2]`). Furthermore, the initialization values `{{1, 6, 3}, {1, 8, 7}}` do not conform to the declared 3D array dimensions, making the example fundamentally incorrect and not a valid 2D array initialization as requested. | Q5: 1.5/2.0 - The student correctly identifies the core concept of recursion as 'the function which call by itself'. However, the grammar is incorrect ('call by itself' instead of 'calls itself') and the phrasing for the purpose ('to satisfy the given condition as true') is less precise than the Master Key's 'to solve a problem'. The fundamental definition is present, but with grammatical and precision issues.",
+        "questions": [
+          {
+            "id": "Q1",
+            "earned": 2.0,
+            "feedback": "The student correctly identifies that keywords are reserved words in C and cannot be used as identifiers. Despite poor grammar ('Keywords are cannot be used' and 'predefined words meaning of reserved words'), the core conceptual understanding aligns with the Master Key.",
+            "confidence": 0.85,
+            "confidence_reason": "Good match, but had to rely heavily on synonyms or interpret poor grammar.",
+            "possible": 2.0
+          },
+          {
+            "id": "Q2",
+            "earned": 0.0,
+            "feedback": "The student's answer describes generic benefits or goals (improving quality, reliability, readability, managing compilation process) rather than specifying the direct 'use' of a preprocessor directive as defined in the Master Key (instructing the compiler to process instructions before compilation). The answer does not align with the functional definition requested.",
+            "confidence": 0.5,
+            "confidence_reason": "Very ambiguous answer, severe difficulty mapping to the teacher's key.",
+            "possible": 2.0
+          },
+          {
+            "id": "Q3",
+            "earned": 0.5,
+            "feedback": "The student correctly identifies `strcmp` as a string comparison function and mentions 'negative' as a possible return value, which is correct for the specific comparison 'Hello' vs 'World'. However, the answer includes '0' as a possibility, which is not the case for this specific input, and lacks the crucial justification provided in the Master Key ('because \"Hello\" is lexicographically less than \"World\"'). The grammar is also very poor ('it is used to string compare function check whether').",
+            "confidence": 0.7,
+            "confidence_reason": "Partial completion, logic is slightly confusing or you had to guess the student's intent.",
+            "possible": 2.0
+          },
+          {
+            "id": "Q4",
+            "earned": 0.0,
+            "feedback": "The student was asked for an example of a 2D array initialization but provided a 3D array (`arr[2][2][2]`). Furthermore, the initialization values `{{1, 6, 3}, {1, 8, 7}}` do not conform to the declared 3D array dimensions, making the example fundamentally incorrect and not a valid 2D array initialization as requested.",
+            "confidence": 0.5,
+            "confidence_reason": "Very ambiguous answer, severe difficulty mapping to the teacher's key.",
+            "possible": 2.0
+          },
+          {
+            "id": "Q5",
+            "earned": 1.5,
+            "feedback": "The student correctly identifies the core concept of recursion as 'the function which call by itself'. However, the grammar is incorrect ('call by itself' instead of 'calls itself') and the phrasing for the purpose ('to satisfy the given condition as true') is less precise than the Master Key's 'to solve a problem'. The fundamental definition is present, but with grammatical and precision issues.",
+            "confidence": 0.85,
+            "confidence_reason": "Good match, but had to rely heavily on synonyms or interpret poor grammar.",
+            "possible": 2.0
+          }
+        ],
+        "extraction_confidence": 1.0,
+        "extraction_reason": "The text is perfectly clear and legible."
+      }
+    ],
+    "timestamp": "2026-03-19 21:55:39"
+  }
+}

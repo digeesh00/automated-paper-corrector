@@ -64,7 +64,11 @@ class CorrectionPipeline:
             # Ensure extraction_confidence exists (defaults to 0.85 if missing)
             if 'extraction_confidence' not in page:
                 page['extraction_confidence'] = 0.85
-                
+        # Save the raw extracted text into a JSON file as per user request
+        extraction_output_path = Path("results") / "extracted_text.json"
+        save_json(extracted_data, str(extraction_output_path))
+        print(f"💾 Saved extracted text to {extraction_output_path}")
+        
         return extracted_data
 
     async def run_async(self, t_path: str, s_path: str, r_path: Optional[str] = None, save_results: bool = True, subject: str = "General") -> Dict[str, Any]:
@@ -103,6 +107,11 @@ class CorrectionPipeline:
         # --- GLOBAL CONTEXT MAPPING ---
         full_teacher_key = "\n\n".join([p.get("content", "") for p in extracted_data['teacher_key']['pages']])
         
+        # --- STRICT MAX MARKS DICTIONARY ---
+        print("🎯 Extracting Strict Max Marks Dictionary from Teacher Key...")
+        teacher_marks_dict = self.comparator.parse_teacher_key_marks(full_teacher_key)
+        print(f"📋 Teacher Max Marks Dict: {teacher_marks_dict}")
+        
         # Phase 2: Comparison
         comparison_results = await self.comparator.compare_documents(
             teacher_data=extracted_data['teacher_key'], 
@@ -110,12 +119,14 @@ class CorrectionPipeline:
             subject=subject,
             mode=eval_mode,
             threshold=threshold,
-            master_key_content=full_teacher_key 
+            master_key_content=full_teacher_key,
+            teacher_marks_dict=teacher_marks_dict
         )
         
-        # Phase 3: Evaluation (Now uses the updated self.total_marks)
+        # Evaluation module naturally groups the structured sums returned strictly from the dict
         evaluation_report = self.evaluator.generate_evaluation_report(
             comparison_results=comparison_results,
+            teacher_marks_dict=teacher_marks_dict,
             teacher_file=extracted_data['teacher_key'].get('file_name'),
             student_file=extracted_data['student_script'].get('file_name'),
             student_info={

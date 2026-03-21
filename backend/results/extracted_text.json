@@ -1,0 +1,41 @@
+{
+  "teacher_key": {
+    "source": "teacher",
+    "total_pages": 1,
+    "pages": [
+      {
+        "page_no": 1,
+        "content": "KGiSL Institute of Technology\n(An Autonomous Institution)\nAffiliated to Anna University, Approved by AICTE, Recognized by UGC,\nAccredited by NAAC & NBA (B.E-CSE,B.E-ECE, B.Tech-IT),\n365, KGiSL Campus, Thudiyalur Road, Saravanampatti, Coimbatore - 641035.\n\nEND SEMESTER EXAMINATIONS-APR/MAY 2025\nRegulation-2021\n\n| Programme(s) | Semester | Course Code | Course Title |\n| :--- | :--- | :--- | :--- |\n| COMMON TO ALL<br>B.E&B.B.TECH | II | 24UCS271 | PROGRAMMING IN C |\n\nTime: Three Hours\nMax:100 Marks\n\nPART - A (10 x 2 = 20 Marks)\n\n| | Answer All Questions | RBT Level | CO | Marks |\n| :--- | :--- | :--- | :--- | :--- |\n| 1. | \"Keywords cannot be used as Identifiers\"-Justify the correctness of the statement.<br>Keywords cannot be used as Identifiers – Because keywords are reserved words in C with predefined meanings and uses in the language syntax. | U | CO1 | 2 |\n| 2. | Specify the use of preprocessor directive.<br>It instructs the compiler to process certain instructions before actual compilation starts, like #include or #define. | R | CO1 | 2 |\n| 3. | Write the value stored in variable var in the following string operations statement in C language<br>var=strcmp(\"Hello\", \"World\")<br>Value of var = strcmp(\"Hello\", \"World\") – A negative value (because \"Hello\" is lexicographically less than \"World\"). | U | CO2 | 2 |\n| 4. | Give an example for initialization of a 2D array with a set of values.<br>int arr[2][2] = {{1, 2}, {3, 4}}; | U | CO2 | 2 |\n| 5. | Define the term recursion in C Language.<br>It is a function calling itself directly or indirectly to solve a problem. | R | CO3 | 2 |",
+        "student_name": "[Not Provided]",
+        "roll_no": "[Not Provided]",
+        "extraction_confidence": 1.0,
+        "extraction_reason": "The text is perfectly clear and legible.",
+        "raw_text": "METADATA_NAME: [Not Provided]\nMETADATA_ROLL: [Not Provided]\nEXTRACTION_CONFIDENCE: 1.0\nEXTRACTION_REASON: The text is perfectly clear and legible.\nCONTENT:\nKGiSL Institute of Technology\n(An Autonomous Institution)\nAffiliated to Anna University, Approved by AICTE, Recognized by UGC,\nAccredited by NAAC & NBA (B.E-CSE,B.E-ECE, B.Tech-IT),\n365, KGiSL Campus, Thudiyalur Road, Saravanampatti, Coimbatore - 641035.\n\nEND SEMESTER EXAMINATIONS-APR/MAY 2025\nRegulation-2021\n\n| Programme(s) | Semester | Course Code | Course Title |\n| :--- | :--- | :--- | :--- |\n| COMMON TO ALL<br>B.E&B.B.TECH | II | 24UCS271 | PROGRAMMING IN C |\n\nTime: Three Hours\nMax:100 Marks\n\nPART - A (10 x 2 = 20 Marks)\n\n| | Answer All Questions | RBT Level | CO | Marks |\n| :--- | :--- | :--- | :--- | :--- |\n| 1. | \"Keywords cannot be used as Identifiers\"-Justify the correctness of the statement.<br>Keywords cannot be used as Identifiers – Because keywords are reserved words in C with predefined meanings and uses in the language syntax. | U | CO1 | 2 |\n| 2. | Specify the use of preprocessor directive.<br>It instructs the compiler to process certain instructions before actual compilation starts, like #include or #define. | R | CO1 | 2 |\n| 3. | Write the value stored in variable var in the following string operations statement in C language<br>var=strcmp(\"Hello\", \"World\")<br>Value of var = strcmp(\"Hello\", \"World\") – A negative value (because \"Hello\" is lexicographically less than \"World\"). | U | CO2 | 2 |\n| 4. | Give an example for initialization of a 2D array with a set of values.<br>int arr[2][2] = {{1, 2}, {3, 4}}; | U | CO2 | 2 |\n| 5. | Define the term recursion in C Language.<br>It is a function calling itself directly or indirectly to solve a problem. | R | CO3 | 2 |"
+      }
+    ],
+    "file_name": "tmp6l97btzy.pdf",
+    "student_name": "[Not Provided]",
+    "roll_no": "[Not Provided]"
+  },
+  "student_script": {
+    "source": "student",
+    "total_pages": 1,
+    "pages": [
+      {
+        "page_no": 1,
+        "content": "Part-A\nAnswer all the following\n\n1) Keywords are cannot be used as Identifiers, they are the predefined words meaning of reserved words in C.\neg: int, float, double.\n\n2) It is used to improve the quality, reliability, readability and manage the compilation process.\n\n3) it is used to string compare function check whether the \"hello\" and \"world\" are same or not also, the value will be 0 or negative.\n\n4) int arr[2][2] = { {1, 6}, {3, 7} }\n\n5) Recursion is the term defined as the function which call by itself to satisfy the given condition as true.",
+        "student_name": "[Not Visible]",
+        "roll_no": "[Not Visible]",
+        "extraction_confidence": 1.0,
+        "extraction_reason": "The text is perfectly clear and legible, allowing for a complete transcription without deductions.",
+        "raw_text": "Based on the image provided, here is the extracted information.\n\n**Note on Metadata:** The top right corner of the image contains the header \"Part-A\" and \"Answer all the following\". There is no Student Name or Roll Number visible in the top right corner or anywhere else on the page.\n\n**Note on Technical Glossary:** The requested technical terms (Inductive, Gradient, etc.) are not present in the text of the exam paper.\n\n**Note on Content:** The text is handwritten and appears to be a set of definitions or answers to questions regarding C programming.\n\nMETADATA_NAME: [Not Visible]\nMETADATA_ROLL: [Not Visible]\nEXTRACTION_CONFIDENCE: 1.0\nEXTRACTION_REASON: The text is perfectly clear and legible, allowing for a complete transcription without deductions.\nCONTENT:\nPart-A\nAnswer all the following\n\n1) Keywords are cannot be used as Identifiers, they are the predefined words meaning of reserved words in C.\neg: int, float, double.\n\n2) It is used to improve the quality, reliability, readability and manage the compilation process.\n\n3) it is used to string compare function check whether the \"hello\" and \"world\" are same or not also, the value will be 0 or negative.\n\n4) int arr[2][2] = { {1, 6}, {3, 7} }\n\n5) Recursion is the term defined as the function which call by itself to satisfy the given condition as true."
+      }
+    ],
+    "file_name": "tmpcg67wu9k.pdf",
+    "student_name": "[Not Visible]",
+    "roll_no": "[Not Visible]"
+  },
+  "extraction_status": "completed",
+  "student_name": "[Not Visible]",
+  "roll_no": "[Not Visible]"
+}
